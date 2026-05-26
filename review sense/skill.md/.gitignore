@@ -1,0 +1,41 @@
+# Env
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+dist/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+*.db
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Antigravity outputs (keep dir, ignore generated files)
+antigravity/outputs/*.json
+antigravity/outputs/*.docx
+antigravity/outputs/*.pdf
+antigravity/outputs/*.tmp
+!antigravity/outputs/.gitkeep
+
+# Docker
+*.tar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store

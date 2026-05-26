@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  # ── Frontend ──────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - reviewsense
+    restart: unless-stopped
+
+  # ── Backend ───────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./backend/outputs:/app/outputs
+      - ./backend/data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - reviewsense
+    restart: unless-stopped
+
+  # ── Database ──────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: reviewsense
+      POSTGRES_PASSWORD: reviewsense123
+      POSTGRES_DB: reviewsense
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - reviewsense
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reviewsense"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── Nginx Reverse Proxy (Optional but Recommended for Production) ──
+  # nginx:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf
+  #   depends_on:
+  #     - frontend
+  #     - backend
+  #   networks:
+  #     - reviewsense
+
+volumes:
+  pg_data:
+
+networks:
+  reviewsense:
+    driver: bridge
